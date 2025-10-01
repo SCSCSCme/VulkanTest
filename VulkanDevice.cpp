@@ -13,10 +13,10 @@ VulkanDevice::~VulkanDevice() {
     std::cout << "-- Device: Destroy. \n";
 
     std::cout << "-- Device: Destroy logic device. \n";
-    if (logicDevice != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(logicDevice);
-        vkDestroyDevice(logicDevice, nullptr);
-        logicDevice = VK_NULL_HANDLE; // 设置为空句柄避免重复销毁
+    if (device != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(device);
+        vkDestroyDevice(device, nullptr);
+        device = VK_NULL_HANDLE; // 设置为空句柄避免重复销毁
     }
 }
 
@@ -91,4 +91,33 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
         }
     }
     std::cout << "-- Device: Lastest selected type is " << physicalDeviceProperties[select].deviceType << ", name is " << physicalDeviceProperties[select].deviceName << " score is" << scores[select] << ". \n";
-}   
+}
+
+void VulkanDevice::createQueue() {
+    std::cout << "-- Device: Create queue. \n";
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+    for (uint32_t i = 0; i > queueFamilyCount; i++) {
+        if ((queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && !(queueFamilies[i].queueFlags & VK_QUEUE_COMPUTE_BIT)) {
+            queueCreateFamilyIndex = i;
+        }
+    }
+
+    std::cout << "-- Device: Create queue family create info. \n";
+    VkQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.VK_STRUCTURE_TYPE_QUEUE_CREATE_INFO;
+    queueCreateInfo.pNext = nullptr;
+    queueCreateInfo.flags = 0;
+    queueCreateInfo.queueFamilyIndex = queueCreateFamilyIndex;
+}
+
+void VulkanDevice::createDevice() {
+    std::cout << "-- Device: Create (logic)device. \n";
+    VkDeviceCreateInfo deviceCreateInfo = {};
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.pNext = nullptr;
+}
