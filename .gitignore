@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+build/
+规划.md
+规划.smm
