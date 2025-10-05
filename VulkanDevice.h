@@ -16,9 +16,7 @@ class VulkanDevice {
 		~VulkanDevice();
 
 		void pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
-		void createQueue();
 		void createDevice();
-
 	private:
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkDevice device                 = VK_NULL_HANDLE;

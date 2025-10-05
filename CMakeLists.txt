@@ -9,4 +9,6 @@ find_package(glfw3 REQUIRED)
 
 add_executable(SandBox SandBox.cpp VulkanApplication.cpp  VulkanInstance.cpp VulkanDevice.cpp)
 target_link_libraries(SandBox PRIVATE Vulkan::Vulkan glfw)
-target_link_options(SandBox PRIVATE "/NODEFAULTLIB:MSVCRT")
+if(WIN32 AND MSVC)
+    target_link_options(SandBox PRIVATE "/NODEFAULTLIB:MSVCRT")
+endif()
