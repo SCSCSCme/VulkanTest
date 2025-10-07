@@ -6,20 +6,18 @@
 #include <vector>
 #include <memory>
 
-struct QueueFamilyInduics {
-
-};
-
 class VulkanDevice {
 	public:
-		VulkanDevice(VkInstance instance, VkSurfaceKHR surface);
+		VulkanDevice(VkInstance instance);
 		~VulkanDevice();
 
-		void pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
+		void pickPhysicalDevice();
 		void createDevice();
 	private:
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkDevice device                 = VK_NULL_HANDLE;
 		VkQueue graphicsQueue           = VK_NULL_HANDLE;
 		VkQueue presentQueue            = VK_NULL_HANDLE;
+        
+        VkInstance m_Instance           = VK_NULL_HANDLE; 
 };

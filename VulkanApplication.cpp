@@ -22,7 +22,7 @@ VulkanApplication::VulkanApplication(const char* appName) : window(nullptr) {
     std::cout << "-- Application: Create instance. \n";
     instance = std::make_unique<VulkanInstance>(appName, window);
     std::cout << "-- Application: Create device. \n";
-    device = std::make_unique<VulkanDevice>(instance->getInstance(), instance->getSurface());
+    device = std::make_unique<VulkanDevice>(instance->getInstance());
 
 }
 

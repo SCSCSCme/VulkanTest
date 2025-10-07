@@ -4,11 +4,13 @@
 #include <algorithm>
 #include <string>
 
-VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface) {
+VulkanDevice::VulkanDevice(VkInstance instance) {
     std::cout << "-- Device: Start initilaze. \n";
+    
+    m_Instance = instance;
 
     std::cout << "-- Device: Pick physical device. \n";
-    pickPhysicalDevice(instance, surface);
+    pickPhysicalDevice();
     if (physicalDevice == VK_NULL_HANDLE) {
         std::cout << "-- Device: [ERROR]->physicalDevice is null after pickPhysicalDevice! \n";
     } else {
@@ -29,20 +31,18 @@ VulkanDevice::~VulkanDevice() {
     }
 }
 
-void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface) {
-    if (instance == VK_NULL_HANDLE) {
+void VulkanDevice::pickPhysicalDevice() {
+    if (m_Instance == VK_NULL_HANDLE) {
         throw std::runtime_error("-- Device: The instace is null. Exit failed. \n");
-    } else if (surface == VK_NULL_HANDLE) {
-        throw std::runtime_error("-- Device: The surface is null. Exit failed. \n");
     }
     // 1.获取可用的设备
     uint32_t physicalDeviceCount = 0;
     std::cout << "-- Device: Enumerate physical devices count. \n";
-    vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
+    vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, nullptr);
 
     std::cout << "-- Device: Enumerate physical devices. \n";
     std::vector<VkPhysicalDevice> devices(physicalDeviceCount);
-    vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, devices.data());
+    vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, devices.data());
     // 2.做出选择
     std::cout << "-- Device: Get physical device score. \n";
     int32_t bestScore = -1;
