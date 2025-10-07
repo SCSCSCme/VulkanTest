@@ -9,6 +9,11 @@ VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface) {
 
     std::cout << "-- Device: Pick physical device. \n";
     pickPhysicalDevice(instance, surface);
+    if (physicalDevice == VK_NULL_HANDLE) {
+        std::cout << "-- Device: [ERROR]->physicalDevice is null after pickPhysicalDevice! \n";
+    } else {
+        std::cout << "-- Device: [SUCCESS]->physicalDevice is valid after pickPhysicalDevice. \n";
+    }
     std::cout << "-- Device: Create (logic) device. \n";
     createDevice();
 }
@@ -40,12 +45,12 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, devices.data());
     // 2.做出选择
     std::cout << "-- Device: Get physical device score. \n";
-    uint32_t bestScore = -1;
+    int32_t bestScore = -1;
     VkPhysicalDevice bestPhysicalDevice = VK_NULL_HANDLE;
 
     size_t select = 0;
     for (; select < physicalDeviceCount; select++) {
-        uint32_t score;
+        int32_t score = 0;
         VkPhysicalDeviceProperties props;
         VkPhysicalDeviceFeatures features;
 
@@ -65,7 +70,7 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
             }
         }
         if (!hasGraphicsQueue) {
-            score = 0; // ❌ 没有图形队列，直接淘汰
+            std::cout << "-- Device: [REJECTED]->" << props.deviceName << " - No graphics queue. \n";
             continue;
         }
 
@@ -80,14 +85,13 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
             requiredExtensions.erase(ext.extensionName);
         }
         if (!requiredExtensions.empty()) { 
-            score = 0; 
+            std::cout << "-- Device: [REJECTED]->" << props.deviceName << " - No swapchain. \n";
             continue;
         }
 
         // --- 3. 优先排除 CPU（llvmpipe）---
         if (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) {
-            std::cout << "-- Device: [REJECTED] " << props.deviceName << " is CPU (llvmpipe). Skipping.\n";
-            score = 0;
+            std::cout << "-- Device: [REJECTED]->" << props.deviceName << " is CPU (llvmpipe). Skipping.\n";
             continue;
         }
 
@@ -108,7 +112,6 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
         uint32_t apiVersion = props.apiVersion;
         uint32_t major = VK_VERSION_MAJOR(apiVersion);
         uint32_t minor = VK_VERSION_MINOR(apiVersion);
-        uint32_t patch = VK_VERSION_PATCH(apiVersion);
 
         if (major > 1 || (major == 1 && minor >= 3)) {
             score += 200;
@@ -119,7 +122,6 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
         } else {
             score += 10; // 1.0 或更低（不推荐）
         }
-        std::cout << "-- Device: The device " << props.deviceName << " is " << props.deviceType << ". The score is " << score << ". \n";
         // --- 6. 可选特性加分 ---
         if (features.geometryShader) score += 50;
         if (features.samplerAnisotropy) score += 30;
@@ -127,7 +129,7 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 
         // --- 7. 设备本地显存加分（限制最大 500）---
         VkPhysicalDeviceMemoryProperties memProps;
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProps);
+        vkGetPhysicalDeviceMemoryProperties(devices[select], &memProps);
         for (uint32_t i = 0; i < memProps.memoryHeapCount; ++i) {
             if (memProps.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
                 uint64_t sizeMB = memProps.memoryHeaps[i].size / (1024 * 1024);
@@ -140,7 +142,10 @@ void VulkanDevice::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
             bestPhysicalDevice = devices[select];
         }
     }
-    physicalDevice = bestPhysicalDevice;
+    if (bestPhysicalDevice == VK_NULL_HANDLE) {
+        std::cout << "-- Device: [ERROR]->No device passed all checks!\n";
+    }
+    this->physicalDevice = bestPhysicalDevice;
 }
 
 void VulkanDevice::createDevice() {
@@ -148,7 +153,7 @@ void VulkanDevice::createDevice() {
         throw std::runtime_error("-- Device: The physical device is null. Exit failed. \n");
     }
     // 1. 获取图形队列族索引
-    uint32_t queueFamilyIndex = -1;
+    int32_t queueFamilyIndex = -1;
     uint32_t queueFamilyCount;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
