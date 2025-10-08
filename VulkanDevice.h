@@ -6,18 +6,31 @@
 #include <vector>
 #include <memory>
 
-class VulkanDevice {
-	public:
-		VulkanDevice(VkInstance instance);
-		~VulkanDevice();
+#include "VulkanInstance.h"
 
-		void pickPhysicalDevice();
-		void createDevice();
-	private:
-		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-		VkDevice device                 = VK_NULL_HANDLE;
-		VkQueue graphicsQueue           = VK_NULL_HANDLE;
-		VkQueue presentQueue            = VK_NULL_HANDLE;
-        
-        VkInstance m_Instance           = VK_NULL_HANDLE; 
+class VulkanDevice {
+    public:
+        VulkanDevice(VulkanInstance& instance);
+        ~VulkanDevice();
+
+        void pickPhysicalDevice();
+        void createDevice();
+
+        std::vector<VkQueue> getQueues() { 
+            std::vector<VkQueue> queues{};
+            if (m_graphicsQueue != VK_NULL_HANDLE)
+                queues.push_back(m_graphicsQueue);
+            if (m_presentQueue != VK_NULL_HANDLE)
+                queues.push_back(m_presentQueue);
+            return queues; 
+        }
+        VkPhysicalDevice getPhysicalDevice() { return m_physicalDevice; }
+        VkDevice getDevice() { return m_device; }
+    private:
+        VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+        VkDevice m_device                 = VK_NULL_HANDLE;
+        VkQueue m_graphicsQueue           = VK_NULL_HANDLE;
+        VkQueue m_presentQueue            = VK_NULL_HANDLE;
+
+        VkInstance m_instance           = VK_NULL_HANDLE; 
 };

@@ -12,7 +12,7 @@ VulkanInstance::VulkanInstance(const char* appName, GLFWwindow* win)
 }
 
 VulkanInstance::~VulkanInstance() {
-    std::cout << "-- Instance: Start destroy. \n";
+    std::cout << "-- Instance: Destroy. \n";
     if (surface != VK_NULL_HANDLE) {
         std::cout << "-- Instance: Destroy surface. \n";
         vkDestroySurfaceKHR(instance, surface, nullptr);
@@ -24,6 +24,7 @@ VulkanInstance::~VulkanInstance() {
 }
 
 void VulkanInstance::createInstance(const char* appName) {
+    std::cout << "-- Instance: Create. \n";
     std::cout << "-- Instance: Create appInfo. \n";
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -58,7 +59,7 @@ void VulkanInstance::createInstance(const char* appName) {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    std::cout << "-- Instance: \nAvailable Vulkan extensions:\n";
+    std::cout << "-- Instance: Available Vulkan extensions:\n";
     for (const auto& extension : extensions) {
         std::cout << "\t" << extension.extensionName << "\n";
     }

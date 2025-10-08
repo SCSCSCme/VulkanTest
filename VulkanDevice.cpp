@@ -4,14 +4,13 @@
 #include <algorithm>
 #include <string>
 
-VulkanDevice::VulkanDevice(VkInstance instance) {
-    std::cout << "-- Device: Start initilaze. \n";
+VulkanDevice::VulkanDevice(VulkanInstance& instance) {
+    std::cout << "-- Device: Create. \n";
     
-    m_Instance = instance;
-
+    m_instance = instance.getInstance();
     std::cout << "-- Device: Pick physical device. \n";
     pickPhysicalDevice();
-    if (physicalDevice == VK_NULL_HANDLE) {
+    if (m_physicalDevice == VK_NULL_HANDLE) {
         std::cout << "-- Device: [ERROR]->physicalDevice is null after pickPhysicalDevice! \n";
     } else {
         std::cout << "-- Device: [SUCCESS]->physicalDevice is valid after pickPhysicalDevice. \n";
@@ -24,25 +23,25 @@ VulkanDevice::~VulkanDevice() {
     std::cout << "-- Device: Destroy. \n";
 
     std::cout << "-- Device: Destroy logic device. \n";
-    if (device != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(device);
-        vkDestroyDevice(device, nullptr);
-        device = VK_NULL_HANDLE; // 设置为空句柄避免重复销毁
+    if (m_device != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_device);
+        vkDestroyDevice(m_device, nullptr);
+        m_device = VK_NULL_HANDLE; // 设置为空句柄避免重复销毁
     }
 }
 
 void VulkanDevice::pickPhysicalDevice() {
-    if (m_Instance == VK_NULL_HANDLE) {
+    if (m_instance == VK_NULL_HANDLE) {
         throw std::runtime_error("-- Device: The instace is null. Exit failed. \n");
     }
     // 1.获取可用的设备
     uint32_t physicalDeviceCount = 0;
     std::cout << "-- Device: Enumerate physical devices count. \n";
-    vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, nullptr);
+    vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, nullptr);
 
     std::cout << "-- Device: Enumerate physical devices. \n";
     std::vector<VkPhysicalDevice> devices(physicalDeviceCount);
-    vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, devices.data());
+    vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, devices.data());
     // 2.做出选择
     std::cout << "-- Device: Get physical device score. \n";
     int32_t bestScore = -1;
@@ -145,19 +144,19 @@ void VulkanDevice::pickPhysicalDevice() {
     if (bestPhysicalDevice == VK_NULL_HANDLE) {
         std::cout << "-- Device: [ERROR]->No device passed all checks!\n";
     }
-    this->physicalDevice = bestPhysicalDevice;
+    m_physicalDevice = bestPhysicalDevice;
 }
 
 void VulkanDevice::createDevice() {
-    if (physicalDevice == VK_NULL_HANDLE) {
+    if (m_physicalDevice == VK_NULL_HANDLE) {
         throw std::runtime_error("-- Device: The physical device is null. Exit failed. \n");
     }
     // 1. 获取图形队列族索引
     int32_t queueFamilyIndex = -1;
     uint32_t queueFamilyCount;
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, queueFamilies.data());
 
     for (uint32_t i = 0; i < queueFamilyCount; ++i) {
         if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
@@ -197,13 +196,13 @@ void VulkanDevice::createDevice() {
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;   // ✅ 必须设置！
 
     // 6. 创建逻辑设备
-    if (vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device) != VK_SUCCESS) {
+    if (vkCreateDevice(m_physicalDevice, &deviceCreateInfo, nullptr, &m_device) != VK_SUCCESS) {
         throw std::runtime_error("-- Device: Failed to create logical device!");
     }
 
     std::cout << "-- Device: Logical device created successfully.\n";
 
     // 7. 获取图形队列
-    vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
+    vkGetDeviceQueue(m_device, queueFamilyIndex, 0, &m_graphicsQueue);
     std::cout << "-- Device: Graphics queue obtained.\n";
 }

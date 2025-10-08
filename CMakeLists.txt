@@ -8,7 +8,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wall -Wextra")
 find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 
-add_executable(SandBox SandBox.cpp VulkanApplication.cpp  VulkanInstance.cpp VulkanDevice.cpp)
+add_executable(SandBox 
+    SandBox.cpp 
+    VulkanApplication.cpp  
+    VulkanInstance.cpp 
+    VulkanDevice.cpp 
+    VulkanSwapchain.cpp
+)
 target_link_libraries(SandBox PRIVATE Vulkan::Vulkan glfw)
 if(WIN32 AND MSVC)
     target_link_options(SandBox PRIVATE "/NODEFAULTLIB:MSVCRT")
