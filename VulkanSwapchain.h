@@ -14,6 +14,7 @@ class VulkanSwapchain {
     private:
         VkSwapchainKHR m_swapchain    = VK_NULL_HANDLE;
         std::vector<VkImage> m_images {};
+        std::vector<VkImageView> m_image_views {};
 
         VkPhysicalDevice m_pysDevice  = VK_NULL_HANDLE;
         VkDevice m_device             = VK_NULL_HANDLE;

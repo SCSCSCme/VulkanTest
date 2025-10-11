@@ -10,7 +10,13 @@ VulkanSwapchain::VulkanSwapchain(VulkanDevice& device) {
 }
 
 void VulkanSwapchain::create() {
-
+    std::cout << "-- Swapchain: Create swapchain. \n";
+    VkSwapchainCreateInfoKHR swapchainCreateInfo{};
+    swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchainCreateInfo.pNext = nullptr;
+    swapchainCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    swapchainCreateInfo.format = VKVK_FORMAT_RBG888;
+    swapchainCreateInfo.imageColorSpace = VK_COLOR_SRGB_SPACE;
 }
 
 void VulkanSwapchain::recreate() {

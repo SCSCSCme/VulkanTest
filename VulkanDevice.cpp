@@ -94,6 +94,11 @@ void VulkanDevice::pickPhysicalDevice() {
             continue;
         }
 
+        std::cout << "-- Device: The device " << props.deviceName << "'s available device extensions: \n";
+        for (auto extension : extensions) {
+            std::cout << "\t" << extension.extensionName << "\n";
+        }
+
         switch (props.deviceType) {
             case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
                 score += 800;
